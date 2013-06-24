@@ -50,9 +50,11 @@ class AntSim
 class Ant
   constructor: (@pos = new Vec)->
     @angle = Math.random() * Math.PI * 2
+    @age = 0
 
   update: ->
-    @angle += (Math.random() - 0.5)*0.1
+    @age++
+    @angle += (Math.random() - 0.5)*0.3
     @pos.x += Math.cos(@angle)
     @pos.y += Math.sin(@angle)
 
@@ -61,7 +63,7 @@ class Ant
     a.save()
     a.beginPath()
     a.translate @pos.x, @pos.y
-    a.arc 0,0,1,0,Math.PI*2
+    a.arc 0,0,2,0,Math.PI*2
     a.fill()
     a.restore()
 
