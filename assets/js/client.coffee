@@ -2,8 +2,11 @@
 
 class AntSim
   constructor: ->
+    @layerScale = 4
     @createCanvas()
+    @createLayers()
     @update()
+
 
   createCanvas: ->
     @b = document.body
@@ -13,14 +16,22 @@ class AntSim
     @h = @c.height = @c.clientHeight
     document.body.clientWidth
 
+  createLayers: ->
+    @layers = {}
+    @layers.foo = new Layer ~~@w / @layerScale, ~~@h / @layerScale
+
   drawLayers: ->
-    layer = new Layer ~~@w/4, ~~@h/4
-    
-    @a.putImageData layer.getImageData(), 0, 0
+    @a.putImageData @layers.foo.getImageData(), 0, 0
     #scale all the layers. kinda dumb but quick
-    @a.drawImage @c, 0, 0, 4*@w, 4*@h
-    
+    @a.drawImage @c, 0, 0, @layerScale*@w, @layerScale*@h
+
   update: ->
+
+    @layers.foo.mul 0.99
+
+    @draw()
+
+  draw: ->
     @a.clearRect(0,0,@w,@h)
 
     @drawLayers()
