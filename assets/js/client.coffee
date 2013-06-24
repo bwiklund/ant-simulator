@@ -18,15 +18,15 @@ class AntSim
 
   createLayers: ->
     @layers = {}
-    @layers.foo = new Layer ~~@w / @layerScale, ~~@h / @layerScale
+    @layers.trail = new Trail @w, @h, @layerScale
 
   createAnts: ->
     @ants = []
-    for i in [0...10]
+    for i in [0...1000]
       @ants.push new Ant @, new Vec(@w/2,@h/2)
 
   drawLayers: ->
-    @a.putImageData @layers.foo.getImageData(), 0, 0
+    @a.putImageData @layers.trail.getImageData(), 0, 0
     #scale all the layers. kinda dumb but quick
     @a.drawImage @c, 0, 0, @layerScale*@w, @layerScale*@h
 
@@ -41,10 +41,10 @@ class AntSim
   draw: ->
     @a.clearRect(0,0,@w,@h)
     @drawLayers()
-    ant.draw @a for ant in @ants
+    #ant.draw @a for ant in @ants
 
     _raf = window.requestAnimationFrame || window.mozRequestAnimationFrame
-    _raf (=> @update()) 
+    _raf (=> @update())
 
 
 class Ant
@@ -59,6 +59,8 @@ class Ant
     @pos.y += Math.sin(@angle)
     @pos.bound 0,0,0,@sim.w,@sim.h,0
 
+    @sim.layers.trail.mark(@pos,0.01)
+
   draw: (a) ->
     a.fillStyle = "#000"
     a.save()
@@ -69,7 +71,10 @@ class Ant
     a.restore()
 
 class Layer
-  constructor: (@w,@h) ->
+  constructor: (_w,_h,@scale) ->
+    @w = ~~(_w / @scale)
+    @h = ~~(_h / @scale)
+
     @buffer = []
     @buffer.push Math.random()*0.2+0.4 for i in [0...@w*@h]
 
@@ -105,6 +110,21 @@ class Layer
       sumNeighbors += v * (1-n)
       newBuffer[i] = sumNeighbors / (9*n+(1-n)) || 0
     @buffer = newBuffer
+
+  mark: (pos,n) ->
+    i = @posToIndex(pos)
+    @buffer[i] += n
+
+  posToIndex: (pos) ->
+    pos = pos.get().mul 1/@scale
+    ~~pos.x + (~~pos.y) * @w
+
+
+class Trail extends Layer
+  update: ->
+    @mul 0.999
+    @blur 0.01
+
       
 
 class Vec
