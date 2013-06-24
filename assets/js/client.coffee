@@ -65,6 +65,7 @@ class Ant
     @pos.bound 0,0,0,@sim.w,@sim.h,0
 
     @sim.layers.hometrail.mark(@pos,0.03)
+    @sim.layers.foodtrail.mark(@pos,0.03)
 
   draw: (a) ->
     a.fillStyle = "#000"
@@ -138,10 +139,9 @@ class LayerCompositor
     d = @imageData.data
     for i in [0...@w*@h]
       j = i*4
-      v = Math.random()#layers.hometrail.buffer[i]
-      d[j+0] = v*255
-      d[j+1] = v*255
-      d[j+2] = v*255
+      d[j+0] = 255 * layers.hometrail.buffer[i]
+      d[j+1] = 255 * layers.foodtrail.buffer[i]
+      d[j+2] = 127
       d[j+3] = 255
     @imageData
       
