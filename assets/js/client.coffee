@@ -24,6 +24,9 @@ class AntSim
     @a.arc 100,100,10,0,Math.PI*2
     @a.fill()
 
+    _raf = window.requestAnimationFrame || window.mozRequestAnimationFrame
+    _raf (=> @update()), 1000/60 
+
 
 class Layer
   constructor: (@w,@h) ->
@@ -42,6 +45,11 @@ class Layer
       d[j+2] = v*255
       d[j+3] = 255
     @imageData
+
+  mul: (n) -> @buffer[i] = v*n for v,i in @buffer
+
+  add: (n) -> @buffer[i] = v-n for v,i in @buffer
+      
 
 
 
