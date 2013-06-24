@@ -13,19 +13,24 @@ class AntSim
     @h = @c.height = @c.clientHeight
     document.body.clientWidth
 
-  update: ->
-    @a.clearRect()
-
-    layer = new Layer @w, @h
-
+  drawLayers: ->
+    layer = new Layer ~~@w/4, ~~@h/4
+    
     @a.putImageData layer.getImageData(), 0, 0
+    #scale all the layers. kinda dumb but quick
+    @a.drawImage @c, 0, 0, 4*@w, 4*@h
+    
+  update: ->
+    @a.clearRect(0,0,@w,@h)
+
+    @drawLayers()
 
     @a.fillStyle = "#fff"
     @a.arc 100,100,10,0,Math.PI*2
     @a.fill()
 
     _raf = window.requestAnimationFrame || window.mozRequestAnimationFrame
-    _raf (=> @update()), 1000/60 
+    _raf (=> @update()) 
 
 
 class Layer
