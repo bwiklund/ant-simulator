@@ -27,7 +27,7 @@ class AntSim
   createAnts: ->
     @ants = []
     for i in [0...500]
-      @ants.push new Ant @, new Vec(@w/2,@h/2)
+      @ants.push new Ant @, new Vec(Math.random()*@w,Math.random()*@h)
 
   drawLayers: ->
     # @a.putImageData @layers.hometrail.getImageData(), 0, 0
@@ -56,9 +56,9 @@ class AntSim
 class Ant
   constructor: (@sim, @pos = new Vec)->
     @angle = Math.random() * Math.PI * 2
-    @speed = Math.random()*0.2 + 0.8
+    @speed = Math.random()*0.2 + 0.5
     @stomach = 0
-    @homeRecency = 1
+    @homeRecency = 0
     @age = 0
 
   sniff: (layer) ->
@@ -78,8 +78,8 @@ class Ant
 
   update: ->
     @age++
-    @stomach *= 0.992
-    @homeRecency *= 0.99
+    @stomach *= 0.993
+    @homeRecency *= 0.993
     # @angle += (Math.random() - 0.5)*0.3
     @pos.add Vec.fromAngleDist @angle, @speed
     @pos.bound 0,0,0,@sim.w,@sim.h,0
@@ -88,20 +88,20 @@ class Ant
     #@sim.layers.foodtrail.mark(@pos,0.03)
     
     # spit out food in the nest
-    if @sim.layers.hometrail.sample(@pos) > 0.95
+    if @sim.layers.hometrail.sample(@pos) > 50
       @stomach = 0
       @homeRecency = 1
 
     @stomach += @sim.layers.food.take @pos, 1
 
-    isHungry = @stomach < 0.5
+    isHungry = @stomach < 0.9
 
     if isHungry
       reading = @sniff @sim.layers.foodtrail
-      @sim.layers.hometrail.mark(@pos,@homeRecency*0.1)
+      @sim.layers.hometrail.mark(@pos,@homeRecency*0.5)
     else
       reading = @sniff @sim.layers.hometrail
-      @sim.layers.foodtrail.mark(@pos,@stomach * 0.1)
+      @sim.layers.foodtrail.mark(@pos,@stomach * 0.01)
 
     if reading > 0 then @angle += 0.5
     if reading < 0 then @angle -= 0.5
@@ -177,22 +177,23 @@ class HomeTrail extends Layer
   #   y/@h
 
   update: ->
-    @mul 0.996
-    @blur 0.002
+    @mul 0.999
+    @blur 0.001
+    @buffer[@w/2 + @h/2 * @w] = 1000
 
 
 class FoodTrail extends Layer
   update: ->
-    @mul 0.996
-    @blur 0.002
+    @mul 0.999
+    @blur 0.001
 
 
 class Food extends Layer
   initCell: (x,y) ->
-    if Math.random() < 0.0001 then 50 else 0
+    if Math.random() < 0.0002 then 100 else 0
   update: ->
-    @blur 0.002
-    if Math.random() < 0.001
+    @blur 0.0001
+    if Math.random() < 0.01
       @mark new Vec( Math.random() * @w*@scale, Math.random() * @h*@scale), 100
 
 
