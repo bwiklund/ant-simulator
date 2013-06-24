@@ -2,7 +2,7 @@
 
 class AntSim
   constructor: ->
-    @layerScale = 4
+    @layerScale = 3
     @createCanvas()
     @createLayers()
     @createAnts()
@@ -59,7 +59,7 @@ class Ant
     @pos.y += Math.sin(@angle)
     @pos.bound 0,0,0,@sim.w,@sim.h,0
 
-    @sim.layers.trail.mark(@pos,0.01)
+    @sim.layers.trail.mark(@pos,0.03)
 
   draw: (a) ->
     a.fillStyle = "#000"
@@ -113,7 +113,8 @@ class Layer
 
   mark: (pos,n) ->
     i = @posToIndex(pos)
-    @buffer[i] += n
+    if @buffer[i]?
+      @buffer[i] += n
 
   posToIndex: (pos) ->
     pos = pos.get().mul 1/@scale
