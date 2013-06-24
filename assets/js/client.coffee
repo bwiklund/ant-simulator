@@ -30,19 +30,18 @@ class AntSim
     #scale all the layers. kinda dumb but quick
     @a.drawImage @c, 0, 0, @layerScale*@w, @layerScale*@h
 
-  drawAnts: ->
-    ant.draw @a for ant in @ants
-
   update: ->
 
     #@layers.foo.blur 0.001
+    layer.update() for k,layer of @layers
+    ant.update() for ant in @ants
 
     @draw()
 
   draw: ->
     @a.clearRect(0,0,@w,@h)
     @drawLayers()
-    @drawAnts()
+    ant.draw @a for ant in @ants
 
     _raf = window.requestAnimationFrame || window.mozRequestAnimationFrame
     _raf (=> @update()) 
@@ -50,10 +49,17 @@ class AntSim
 
 class Ant
   constructor: (@pos = new Vec)->
+    @angle = Math.random() * Math.PI * 2
+
+  update: ->
+    @angle += (Math.random() - 0.5)*0.1
+    @pos.x += Math.cos(@angle)
+    @pos.y += Math.sin(@angle)
 
   draw: (a) ->
     a.fillStyle = "#000"
     a.save()
+    a.beginPath()
     a.translate @pos.x, @pos.y
     a.arc 0,0,1,0,Math.PI*2
     a.fill()
@@ -66,6 +72,8 @@ class Layer
 
     # seems to be the only way to make a new imagedata object?
     @imageData = document.createElement('CANVAS').getContext('2d').createImageData(@w,@h)
+
+  update: ->
     
   getImageData: ->
     d = @imageData.data
