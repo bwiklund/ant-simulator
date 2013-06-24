@@ -25,7 +25,7 @@ class AntSim
 
   createAnts: ->
     @ants = []
-    for i in [0...1000]
+    for i in [0...50]
       @ants.push new Ant @, new Vec(@w/2,@h/2)
 
   drawLayers: ->
@@ -46,7 +46,7 @@ class AntSim
   draw: ->
     @a.clearRect(0,0,@w,@h)
     @drawLayers()
-    #ant.draw @a for ant in @ants
+    ant.draw @a for ant in @ants
 
     _raf = window.requestAnimationFrame || window.mozRequestAnimationFrame
     _raf (=> @update())
@@ -55,17 +55,37 @@ class AntSim
 class Ant
   constructor: (@sim, @pos = new Vec)->
     @angle = Math.random() * Math.PI * 2
+    @speed = Math.random()*0.2 + 0.8
+    @stomach = 0
     @age = 0
+
+  sniff: (layer) ->
+    antennaDist = 2
+    antennaAngle = Math.PI / 4
+
+    antennaLeftPos  = @pos.get().add( Vec.fromAngleDist(@angle+antennaAngle,antennaDist) )
+    antennaRightPos = @pos.get().add( Vec.fromAngleDist(@angle-antennaAngle,antennaDist) )
+
+    leftSample  = layer.sample antennaLeftPos
+    rightSample = layer.sample antennaRightPos
+
+    leftSample - rightSample
 
   update: ->
     @age++
-    @angle += (Math.random() - 0.5)*0.3
-    @pos.x += Math.cos(@angle)
-    @pos.y += Math.sin(@angle)
+    @stomach *= 0.99
+    # @angle += (Math.random() - 0.5)*0.3
+    @pos.add Vec.fromAngleDist @angle, @speed
     @pos.bound 0,0,0,@sim.w,@sim.h,0
 
-    @sim.layers.hometrail.mark(@pos,0.03)
-    @sim.layers.foodtrail.mark(@pos,0.03)
+    #@sim.layers.hometrail.mark(@pos,0.03)
+    #@sim.layers.foodtrail.mark(@pos,0.03)
+
+    reading = @sniff(@sim.layers.hometrail)
+
+    if reading > 0 then @angle += 0.5
+    if reading < 0 then @angle -= 0.5
+    @angle += (Math.random() - 0.5)*0.2
 
   draw: (a) ->
     a.fillStyle = "#000"
@@ -75,6 +95,7 @@ class Ant
     a.arc 0,0,2,0,Math.PI*2
     a.fill()
     a.restore()
+
 
 class Layer
   constructor: (_w,_h,@scale) ->
@@ -111,20 +132,28 @@ class Layer
     if @buffer[i]?
       @buffer[i] += n
 
+  sample: (pos) ->
+    i = @posToIndex(pos)
+    @buffer[i] || 0
+
+
   posToIndex: (pos) ->
     pos = pos.get().mul 1/@scale
     Math.floor(pos.x) + Math.floor(pos.y) * @w
 
 
 class HomeTrail extends Layer
+  initCell: (x,y) ->
+    y/500
+
   update: ->
-    @mul 0.997
-    @blur 0.002
+    #@mul 0.999
+    #@blur 0.002
 
 
 class FoodTrail extends Layer
   update: ->
-    @mul 0.997
+    @mul 0.999
     @blur 0.002
 
 
@@ -161,6 +190,9 @@ class Vec
     @y = Math.min y2, Math.max(y1, @y)
     @z = Math.min z2, Math.max(z1, @z)
     @
+
+Vec.fromAngleDist = (angle,dist) ->
+  new Vec dist*Math.cos(angle), dist*Math.sin(angle)
 
 
 
