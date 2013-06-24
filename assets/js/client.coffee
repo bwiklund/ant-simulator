@@ -76,10 +76,12 @@ class Layer
     @h = ~~(_h / @scale)
 
     @buffer = []
-    @buffer.push Math.random()*0.2+0.4 for i in [0...@w*@h]
+    @buffer.push @initCell(i%@w,Math.floor(i/@h)) for i in [0...@w*@h]
 
     # seems to be the only way to make a new imagedata object?
     @imageData = document.createElement('CANVAS').getContext('2d').createImageData(@w,@h)
+
+  initCell: (x,y) -> 0
 
   update: ->
     
@@ -118,13 +120,13 @@ class Layer
 
   posToIndex: (pos) ->
     pos = pos.get().mul 1/@scale
-    ~~pos.x + (~~pos.y) * @w
+    Math.floor(pos.x) + Math.floor(pos.y) * @w
 
 
 class Trail extends Layer
   update: ->
-    @mul 0.999
-    @blur 0.01
+    @mul 0.99
+    @blur 0.002
 
       
 
