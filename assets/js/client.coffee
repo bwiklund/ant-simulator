@@ -23,7 +23,7 @@ class AntSim
   createAnts: ->
     @ants = []
     for i in [0...10]
-      @ants.push new Ant new Vec(@w/2,@h/2)
+      @ants.push new Ant @, new Vec(@w/2,@h/2)
 
   drawLayers: ->
     @a.putImageData @layers.foo.getImageData(), 0, 0
@@ -48,7 +48,7 @@ class AntSim
 
 
 class Ant
-  constructor: (@pos = new Vec)->
+  constructor: (@sim, @pos = new Vec)->
     @angle = Math.random() * Math.PI * 2
     @age = 0
 
@@ -57,6 +57,7 @@ class Ant
     @angle += (Math.random() - 0.5)*0.3
     @pos.x += Math.cos(@angle)
     @pos.y += Math.sin(@angle)
+    @pos.bound 0,0,0,@sim.w,@sim.h,0
 
   draw: (a) ->
     a.fillStyle = "#000"
