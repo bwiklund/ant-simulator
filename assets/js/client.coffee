@@ -18,7 +18,10 @@ class AntSim
 
   createLayers: ->
     @layers = {}
-    @layers.trail = new Trail @w, @h, @layerScale
+    @layers.hometrail = new HomeTrail @w, @h, @layerScale
+    @layers.foodtrail = new FoodTrail @w, @h, @layerScale
+
+    @compositor = new LayerCompositor @w, @h, @layerScale
 
   createAnts: ->
     @ants = []
@@ -26,8 +29,10 @@ class AntSim
       @ants.push new Ant @, new Vec(@w/2,@h/2)
 
   drawLayers: ->
-    @a.putImageData @layers.trail.getImageData(), 0, 0
+    # @a.putImageData @layers.hometrail.getImageData(), 0, 0
+    # @a.putImageData @layers.foodtrail.getImageData(), 0, 0
     #scale all the layers. kinda dumb but quick
+    @a.putImageData @compositor.getImageData(@layers), 0, 0
     @a.drawImage @c, 0, 0, @layerScale*@w, @layerScale*@h
 
   update: ->
@@ -59,7 +64,7 @@ class Ant
     @pos.y += Math.sin(@angle)
     @pos.bound 0,0,0,@sim.w,@sim.h,0
 
-    @sim.layers.trail.mark(@pos,0.03)
+    @sim.layers.hometrail.mark(@pos,0.03)
 
   draw: (a) ->
     a.fillStyle = "#000"
@@ -78,22 +83,9 @@ class Layer
     @buffer = []
     @buffer.push @initCell(i%@w,Math.floor(i/@h)) for i in [0...@w*@h]
 
-    # seems to be the only way to make a new imagedata object?
-    @imageData = document.createElement('CANVAS').getContext('2d').createImageData(@w,@h)
-
   initCell: (x,y) -> 0
 
   update: ->
-    
-  getImageData: ->
-    d = @imageData.data
-    for v,i in @buffer
-      j = i*4
-      d[j+0] = v*255
-      d[j+1] = v*255
-      d[j+2] = v*255
-      d[j+3] = 255
-    @imageData
 
   mul: (n) -> @buffer[i] = v*n for v,i in @buffer
 
@@ -123,11 +115,35 @@ class Layer
     Math.floor(pos.x) + Math.floor(pos.y) * @w
 
 
-class Trail extends Layer
+class HomeTrail extends Layer
   update: ->
-    @mul 0.99
+    @mul 0.997
     @blur 0.002
 
+
+class FoodTrail extends Layer
+  update: ->
+    @mul 0.997
+    @blur 0.002
+
+
+class LayerCompositor
+  constructor: (_w,_h,@scale) ->
+    @w = ~~ (_w / @scale)
+    @h = ~~ (_h / @scale)
+    # seems to be the only way to make a new imagedata object?
+    @imageData = document.createElement('CANVAS').getContext('2d').createImageData(@w,@h)
+    
+  getImageData: (layers) ->
+    d = @imageData.data
+    for i in [0...@w*@h]
+      j = i*4
+      v = Math.random()#layers.hometrail.buffer[i]
+      d[j+0] = v*255
+      d[j+1] = v*255
+      d[j+2] = v*255
+      d[j+3] = 255
+    @imageData
       
 
 class Vec
