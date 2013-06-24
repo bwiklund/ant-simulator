@@ -27,7 +27,7 @@ class AntSim
 
   update: ->
 
-    @layers.foo.mul 0.99
+    @layers.foo.blur 0.99
 
     @draw()
 
@@ -65,6 +65,18 @@ class Layer
   mul: (n) -> @buffer[i] = v*n for v,i in @buffer
 
   add: (n) -> @buffer[i] = v-n for v,i in @buffer
+
+  blur: (n) ->
+    newBuffer = []
+    for v,i in @buffer
+      x = i%@w
+      y = (i-x)/@h
+      sumNeighbors = 0
+      for _x in [Math.max(0,x-1)..Math.min(@w-1,x+1)]
+        for _y in [Math.max(0,y-1)..Math.min(@h-1,y+1)]
+          sumNeighbors += @buffer[_x+_y*@w]
+      newBuffer[i] = sumNeighbors / 9 || 0
+    @buffer = newBuffer
       
 
 
