@@ -20,6 +20,7 @@ class AntSim
     @layers = {}
     @layers.hometrail = new HomeTrail @w, @h, @layerScale
     @layers.foodtrail = new FoodTrail @w, @h, @layerScale
+    @layers.food = new Food @w, @h, @layerScale
 
     @compositor = new LayerCompositor @w, @h, @layerScale
 
@@ -73,7 +74,7 @@ class Ant
 
   update: ->
     @age++
-    @stomach *= 0.99
+    @stomach *= 0.999
     # @angle += (Math.random() - 0.5)*0.3
     @pos.add Vec.fromAngleDist @angle, @speed
     @pos.bound 0,0,0,@sim.w,@sim.h,0
@@ -82,8 +83,10 @@ class Ant
     #@sim.layers.foodtrail.mark(@pos,0.03)
     
     # spit out food in the nest
-    if @pos.y > 500
+    if @sim.layers.hometrail.sample(@pos) > 1
       @stomach = 0
+
+    @stomach += @sim.layers.food.take @pos, 1
 
     isHungry = @stomach < 0.5
 
@@ -96,7 +99,7 @@ class Ant
 
     if reading > 0 then @angle += 0.5
     if reading < 0 then @angle -= 0.5
-    @angle += (Math.random() - 0.5)*0.2
+    @angle += (Math.random() - 0.5)*0.6
 
   draw: (a) ->
     a.fillStyle = "#000"
@@ -147,6 +150,16 @@ class Layer
     i = @posToIndex(pos)
     @buffer[i] || 0
 
+  take: (pos,max) ->
+    i = @posToIndex(pos)
+    if @buffer[i]?
+      takeAmount = Math.min @buffer[i], max
+      @buffer[i] -= takeAmount
+      takeAmount
+    else
+      0
+
+
 
   posToIndex: (pos) ->
     pos = pos.get().mul 1/@scale
@@ -158,14 +171,21 @@ class HomeTrail extends Layer
     y/500
 
   update: ->
-    #@mul 0.999
-    #@blur 0.002
+    @mul 0.999
+    @blur 0.002
 
 
 class FoodTrail extends Layer
   update: ->
     @mul 0.999
     @blur 0.002
+
+
+class Food extends Layer
+  update: ->
+    @blur 0.002
+    if Math.random() < 0.005
+      @mark new Vec( Math.random() * @w*@scale, Math.random() * @h*@scale), 100
 
 
 class LayerCompositor
@@ -181,7 +201,7 @@ class LayerCompositor
       j = i*4
       d[j+0] = 255 * layers.hometrail.buffer[i]
       d[j+1] = 255 * layers.foodtrail.buffer[i]
-      d[j+2] = 50
+      d[j+2] = 255 * layers.food.buffer[i]
       d[j+3] = 255
     @imageData
       
