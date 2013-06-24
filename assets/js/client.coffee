@@ -60,7 +60,7 @@ class Ant
     @age = 0
 
   sniff: (layer) ->
-    antennaDist = 2
+    antennaDist = 1.5
     antennaAngle = Math.PI / 4
 
     antennaLeftPos  = @pos.get().add( Vec.fromAngleDist(@angle+antennaAngle,antennaDist) )
@@ -80,8 +80,19 @@ class Ant
 
     #@sim.layers.hometrail.mark(@pos,0.03)
     #@sim.layers.foodtrail.mark(@pos,0.03)
+    
+    # spit out food in the nest
+    if @pos.y > 500
+      @stomach = 0
 
-    reading = @sniff(@sim.layers.hometrail)
+    isHungry = @stomach < 0.5
+
+    if isHungry
+      reading = @sniff @sim.layers.foodtrail
+      @sim.layers.hometrail.mark(@pos,0.03)
+    else
+      reading = @sniff @sim.layers.hometrail
+      @sim.layers.foodtrail.mark(@pos,0.03)
 
     if reading > 0 then @angle += 0.5
     if reading < 0 then @angle -= 0.5
@@ -170,7 +181,7 @@ class LayerCompositor
       j = i*4
       d[j+0] = 255 * layers.hometrail.buffer[i]
       d[j+1] = 255 * layers.foodtrail.buffer[i]
-      d[j+2] = 127
+      d[j+2] = 50
       d[j+3] = 255
     @imageData
       
