@@ -5,8 +5,8 @@ class AntSim
     @layerScale = 4
     @createCanvas()
     @createLayers()
+    @createAnts()
     @update()
-
 
   createCanvas: ->
     @b = document.body
@@ -20,25 +20,29 @@ class AntSim
     @layers = {}
     @layers.foo = new Layer ~~@w / @layerScale, ~~@h / @layerScale
 
+  createAnts: ->
+    @ants = []
+    for i in [0...10]
+      @ants.push new Ant new Vec(@w/2,@h/2)
+
   drawLayers: ->
     @a.putImageData @layers.foo.getImageData(), 0, 0
     #scale all the layers. kinda dumb but quick
     @a.drawImage @c, 0, 0, @layerScale*@w, @layerScale*@h
 
+  drawAnts: ->
+    ant.draw @a for ant in @ants
+
   update: ->
 
-    @layers.foo.blur 0.001
+    #@layers.foo.blur 0.001
 
     @draw()
 
   draw: ->
     @a.clearRect(0,0,@w,@h)
-
     @drawLayers()
-
-    @a.fillStyle = "#fff"
-    @a.arc 100,100,10,0,Math.PI*2
-    @a.fill()
+    @drawAnts()
 
     _raf = window.requestAnimationFrame || window.mozRequestAnimationFrame
     _raf (=> @update()) 
@@ -47,11 +51,18 @@ class AntSim
 class Ant
   constructor: (@pos = new Vec)->
 
+  draw: (a) ->
+    a.fillStyle = "#000"
+    a.save()
+    a.translate @pos.x, @pos.y
+    a.arc 0,0,1,0,Math.PI*2
+    a.fill()
+    a.restore()
 
 class Layer
   constructor: (@w,@h) ->
     @buffer = []
-    @buffer.push Math.random() for i in [0...@w*@h]
+    @buffer.push Math.random()*0.2+0.4 for i in [0...@w*@h]
 
     # seems to be the only way to make a new imagedata object?
     @imageData = document.createElement('CANVAS').getContext('2d').createImageData(@w,@h)
