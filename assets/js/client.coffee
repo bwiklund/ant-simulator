@@ -1,8 +1,12 @@
-
+CONFIG =
+  SCALE: 4
+  NUM_ANTS: 1000
+  STEPS_PER_FRAME: 5
+  ANT_TURN_SPEED: 0.7
 
 class AntSim
   constructor: ->
-    @layerScale = 4
+    @layerScale = CONFIG.SCALE
     @createCanvas()
     @createLayers()
     @createAnts()
@@ -26,7 +30,7 @@ class AntSim
 
   createAnts: ->
     @ants = []
-    for i in [0...2000]
+    for i in [0...CONFIG.NUM_ANTS]
       @ants.push new Ant @, new Vec(Math.random()*@w,Math.random()*@h)
 
   drawLayers: ->
@@ -40,8 +44,7 @@ class AntSim
 
     #@layers.foo.blur 0.001
     
-    steps = 20
-    for i in [0...steps]
+    for i in [0...CONFIG.STEPS_PER_FRAME]
       layer.update() for k,layer of @layers
       ant.update() for ant in @ants
 
@@ -80,17 +83,10 @@ class Ant
     leftSample - rightSample
 
   update: ->
-    # rules:
-    # 
-    
-    # 
-    # eat whatever food you can fit in stomach
-    # if stomach becomes full, do 360
     
     @age++
     @stomach *= 0.99
     @homeRecency *= 0.99
-    # @angle += (Math.random() - 0.5)*0.3
     
     if @isInNest()
       @stomach = 0
@@ -117,8 +113,8 @@ class Ant
     @sim.layers.foodtrail.mark(@pos,@stomach * 0.01)
     @sim.layers.hometrail.mark(@pos,@homeRecency*0.1)
 
-    if reading > 0 then @angle += 0.5
-    if reading < 0 then @angle -= 0.5
+    if reading > 0 then @angle += CONFIG.ANT_TURN_SPEED
+    if reading < 0 then @angle -= CONFIG.ANT_TURN_SPEED
 
     # don't jitter the angle if you're on the trail.
     jitterAmount = Math.max(0,1-@sim.layers.foodtrail.sample( @pos ))
