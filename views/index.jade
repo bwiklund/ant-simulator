@@ -1,7 +1,22 @@
 html
   head
     title fmjs
+
+    script(src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js")
     != css('style')
     != js('client')
-  body
+
+    script
+      var app = angular.module("demoHarness",[]);
+      app.controller('MainCtrl',function($scope){
+        $scope.sim = new AntSim();
+      });
+
+  body(ng-app="demoHarness",ng-controller="MainCtrl")
+    label
+      |Show ants  
+      input(type="checkbox",ng-model="sim.CONFIG.SHOW_ANTS")
+    label
+      |Steps per frame
+      input(type="range",min="1",max="20",ng-model="sim.CONFIG.STEPS_PER_FRAME")
     canvas

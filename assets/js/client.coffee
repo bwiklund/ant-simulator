@@ -1,4 +1,4 @@
-CONFIG =
+DEFAULT_CONFIG =
   SCALE: 4
   NUM_ANTS: 1000
   STEPS_PER_FRAME: 5
@@ -10,7 +10,8 @@ CONFIG =
 
 class AntSim
   constructor: ->
-    @layerScale = CONFIG.SCALE
+    @CONFIG = DEFAULT_CONFIG # to expose it to our test ui. janky
+    @layerScale = @CONFIG.SCALE
     @createCanvas()
     @createLayers()
     @createAnts()
@@ -34,7 +35,7 @@ class AntSim
 
   createAnts: ->
     @ants = []
-    for i in [0...CONFIG.NUM_ANTS]
+    for i in [0...@CONFIG.NUM_ANTS]
       @ants.push new Ant @, new Vec @w/2,@h
       #new Vec(Math.random()*@w,Math.random()*@h)
 
@@ -44,7 +45,7 @@ class AntSim
     @a.drawImage @c, 0, 0, @layerScale*@w, @layerScale*@h
 
   update: ->
-    for i in [0...CONFIG.STEPS_PER_FRAME]
+    for i in [0...@CONFIG.STEPS_PER_FRAME]
       layer.update() for k,layer of @layers
       ant.update() for ant in @ants
 
@@ -54,7 +55,7 @@ class AntSim
     @a.clearRect(0,0,@w,@h)
     @drawLayers()
     
-    CONFIG.SHOW_ANTS && ant.draw @a for ant in @ants
+    @CONFIG.SHOW_ANTS && ant.draw @a for ant in @ants
 
     _raf = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.msRequestAnimationFrame || window.oRequestAnimationFrame
     _raf (=> @update())
@@ -86,8 +87,8 @@ class Ant
   update: ->
     
     @age++
-    @stomach *= 1 - CONFIG.DIGESTION_RATE
-    @homeRecency *= 1 - CONFIG.NEST_FALLOFF_RATE
+    @stomach *= 1 - @sim.CONFIG.DIGESTION_RATE
+    @homeRecency *= 1 - @sim.CONFIG.NEST_FALLOFF_RATE
     
     if @isInNest()
       @stomach = 0
@@ -116,12 +117,12 @@ class Ant
     @sim.layers.hometrail.mark(@pos,@homeRecency * 0.1)
 
     # turn
-    if reading > 0 then @angle += CONFIG.ANT_TURN_SPEED
-    if reading < 0 then @angle -= CONFIG.ANT_TURN_SPEED
+    if reading > 0 then @angle += @sim.CONFIG.ANT_TURN_SPEED
+    if reading < 0 then @angle -= @sim.CONFIG.ANT_TURN_SPEED
 
     # don't jitter the angle if you're on the trail.
     jitterAmount = Math.max(0,1-@sim.layers.foodtrail.sample( @pos ))
-    @angle += (Math.random() - 0.5)*2*jitterAmount*CONFIG.JITTER_MAGNITUDE
+    @angle += (Math.random() - 0.5)*2*jitterAmount*@sim.CONFIG.JITTER_MAGNITUDE
 
     # apply changes
     @pos.add Vec.fromAngleDist @angle, @speed
@@ -133,7 +134,7 @@ class Ant
       @pos = boundPos
 
   isInNest: ->
-    new Vec(@sim.w/2,@sim.h/2).sub(@pos).mag() < 10
+    new Vec(@sim.w/2,@sim.h).sub(@pos).mag() < 10
 
   isHunting: ->
     @stomach < 0.1 && @homeRecency > 0.01
@@ -280,5 +281,4 @@ Vec.fromAngleDist = (angle,dist) ->
 
 
 
-window.addEventListener 'load', ->
-  new AntSim
+@AntSim = AntSim
