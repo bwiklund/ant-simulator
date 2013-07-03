@@ -63,7 +63,7 @@ class Ant
 
   sniff: (layer) ->
     antennaDist = 3
-    antennaAngle = Math.PI / 8
+    antennaAngle = Math.PI / 4
 
     antennaLeftPos  = @pos.get().add( Vec.fromAngleDist(@angle+antennaAngle,antennaDist) )
     antennaRightPos = @pos.get().add( Vec.fromAngleDist(@angle-antennaAngle,antennaDist) )
@@ -77,9 +77,18 @@ class Ant
     leftSample - rightSample
 
   update: ->
+    # rules:
+    # 
+    # if empty stomach or away from home too long, follow the home trail
+    # else, try to sniff out food directly
+    # if no food to sniff, follow the food scent trail
+    # 
+    # eat whatever food you can fit in stomach
+    # if stomach becomes full, do 360
+    
     @age++
-    @stomach *= 0.993
-    @homeRecency *= 0.993
+    @stomach *= 0.99
+    @homeRecency *= 0.99
     # @angle += (Math.random() - 0.5)*0.3
     @pos.add Vec.fromAngleDist @angle, @speed
     @pos.bound 0,0,0,@sim.w,@sim.h,0
@@ -88,24 +97,26 @@ class Ant
     #@sim.layers.foodtrail.mark(@pos,0.03)
     
     # spit out food in the nest
-    if @sim.layers.hometrail.sample(@pos) > 50
+    if @sim.layers.hometrail.sample(@pos) > 1
       @stomach = 0
       @homeRecency = 1
 
     @stomach += @sim.layers.food.take @pos, 1
 
-    isHungry = @stomach < 0.9
-
-    if isHungry
-      reading = @sniff @sim.layers.foodtrail
-      @sim.layers.hometrail.mark(@pos,@homeRecency*0.5)
+    reading = @sniff if @stomach > 0.1 || @queened < 0.1
+      @sim.layers.hometrail
     else
-      reading = @sniff @sim.layers.hometrail
-      @sim.layers.foodtrail.mark(@pos,@stomach * 0.01)
+      @sim.layers.foodtrail
+
+    @sim.layers.foodtrail.mark(@pos,@stomach * 0.01)
+    @sim.layers.hometrail.mark(@pos,@homeRecency*0.1)
 
     if reading > 0 then @angle += 0.5
     if reading < 0 then @angle -= 0.5
-    @angle += (Math.random() - 0.5)*0.6
+
+    # don't jitter the angle if you're on the trail.
+    jitterAmount = Math.max(0,1-@sim.layers.foodtrail.sample( @pos ))
+    @angle += (Math.random() - 0.5)*jitterAmount
 
   draw: (a) ->
     a.fillStyle = "#fff"
@@ -192,7 +203,6 @@ class Food extends Layer
   initCell: (x,y) ->
     if Math.random() < 0.0002 then 100 else 0
   update: ->
-    @blur 0.0001
     if Math.random() < 0.01
       @mark new Vec( Math.random() * @w*@scale, Math.random() * @h*@scale), 100
 
