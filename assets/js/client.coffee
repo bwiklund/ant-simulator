@@ -2,7 +2,7 @@
 
 class AntSim
   constructor: ->
-    @layerScale = 3
+    @layerScale = 8
     @createCanvas()
     @createLayers()
     @createAnts()
@@ -56,13 +56,13 @@ class AntSim
 class Ant
   constructor: (@sim, @pos = new Vec)->
     @angle = Math.random() * Math.PI * 2
-    @speed = Math.random()*0.2 + 0.5
+    @speed = Math.random() * 0.2 + 2.5
     @stomach = 0
     @homeRecency = 0
     @age = 0
 
   sniff: (layer) ->
-    antennaDist = 3
+    antennaDist = 3 * @sim.layerScale
     antennaAngle = Math.PI / 4
 
     antennaLeftPos  = @pos.get().add( Vec.fromAngleDist(@angle+antennaAngle,antennaDist) )
@@ -90,23 +90,18 @@ class Ant
     @stomach *= 0.99
     @homeRecency *= 0.99
     # @angle += (Math.random() - 0.5)*0.3
-    @pos.add Vec.fromAngleDist @angle, @speed
-    @pos.bound 0,0,0,@sim.w,@sim.h,0
-
-    #@sim.layers.hometrail.mark(@pos,0.03)
-    #@sim.layers.foodtrail.mark(@pos,0.03)
     
-    # spit out food in the nest
-    if @sim.layers.hometrail.sample(@pos) > 1
+    #if @sim.layers.hometrail.sample(@pos) > 1
+    if @isInNest()
       @stomach = 0
       @homeRecency = 1
 
     @stomach += @sim.layers.food.take @pos, 1
 
-    reading = @sniff if @stomach > 0.1 || @queened < 0.1
-      @sim.layers.hometrail
-    else
+    reading = @sniff if @isHunting()
       @sim.layers.foodtrail
+    else
+      @sim.layers.hometrail
 
     @sim.layers.foodtrail.mark(@pos,@stomach * 0.01)
     @sim.layers.hometrail.mark(@pos,@homeRecency*0.1)
@@ -117,6 +112,16 @@ class Ant
     # don't jitter the angle if you're on the trail.
     jitterAmount = Math.max(0,1-@sim.layers.foodtrail.sample( @pos ))
     @angle += (Math.random() - 0.5)*jitterAmount
+
+    # apply changes
+    @pos.add Vec.fromAngleDist @angle, @speed
+    @pos.bound 0,0,0,@sim.w,@sim.h,0
+
+  isInNest: ->
+    @pos.y > @sim.h * 0.95
+
+  isHunting: ->
+    @stomach < 0.1 && @homeRecency > 0.01
 
   draw: (a) ->
     a.fillStyle = "#fff"
@@ -188,15 +193,15 @@ class HomeTrail extends Layer
   #   y/@h
 
   update: ->
-    @mul 0.999
-    @blur 0.001
+    @mul 0.995
+    #@blur 0.001
     @buffer[@w/2 + @h/2 * @w] = 1000
 
 
 class FoodTrail extends Layer
   update: ->
-    @mul 0.999
-    @blur 0.001
+    @mul 0.995
+    #@blur 0.001
 
 
 class Food extends Layer
