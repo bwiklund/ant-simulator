@@ -1,6 +1,5 @@
-fmjs
-====
+# ant simulator
 
-a boilerplate node project with the stuff I like.
+![Sample](/docs/sample.gif)
 
-uses node, express, connect-assets, coffeescript, and stylus.
+simulating ant food gathering using scent trails
