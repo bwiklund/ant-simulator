@@ -1,4 +1,4 @@
-![Sample](/docs/sample.gif)
+![Sample](/misc/sample.gif)
 
 # ant simulator
 
