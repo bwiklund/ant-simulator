@@ -2,7 +2,7 @@
 
 class AntSim
   constructor: ->
-    @layerScale = 8
+    @layerScale = 4
     @createCanvas()
     @createLayers()
     @createAnts()
@@ -26,7 +26,7 @@ class AntSim
 
   createAnts: ->
     @ants = []
-    for i in [0...500]
+    for i in [0...2000]
       @ants.push new Ant @, new Vec(Math.random()*@w,Math.random()*@h)
 
   drawLayers: ->
@@ -39,8 +39,11 @@ class AntSim
   update: ->
 
     #@layers.foo.blur 0.001
-    layer.update() for k,layer of @layers
-    ant.update() for ant in @ants
+    
+    steps = 20
+    for i in [0...steps]
+      layer.update() for k,layer of @layers
+      ant.update() for ant in @ants
 
     @draw()
 
@@ -136,7 +139,7 @@ class Ant
     a.save()
     a.beginPath()
     a.translate @pos.x, @pos.y
-    a.arc 0,0,2,0,Math.PI*2
+    a.arc 0,0,0.25*@sim.layerScale,0,Math.PI*2
     a.fill()
     a.restore()
 
