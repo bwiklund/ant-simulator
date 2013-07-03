@@ -3,6 +3,7 @@ CONFIG =
   NUM_ANTS: 1000
   STEPS_PER_FRAME: 5
   ANT_TURN_SPEED: 0.7
+  SHOW_ANTS: true
 
 class AntSim
   constructor: ->
@@ -31,7 +32,7 @@ class AntSim
   createAnts: ->
     @ants = []
     for i in [0...CONFIG.NUM_ANTS]
-      @ants.push new Ant @, new Vec(Math.random()*@w,Math.random()*@h)
+      @ants.push new Ant @, new Vec @w/2,@h#new Vec(Math.random()*@w,Math.random()*@h)
 
   drawLayers: ->
     # @a.putImageData @layers.hometrail.getImageData(), 0, 0
@@ -53,7 +54,8 @@ class AntSim
   draw: ->
     @a.clearRect(0,0,@w,@h)
     @drawLayers()
-    #ant.draw @a for ant in @ants
+    
+    CONFIG.SHOW_ANTS && ant.draw @a for ant in @ants
 
     _raf = window.requestAnimationFrame || window.mozRequestAnimationFrame
     _raf (=> @update())
@@ -111,7 +113,7 @@ class Ant
       reading = @sniff @sim.layers.hometrail
 
     @sim.layers.foodtrail.mark(@pos,@stomach * 0.01)
-    @sim.layers.hometrail.mark(@pos,@homeRecency*0.1)
+    @sim.layers.hometrail.mark(@pos,@homeRecency * 0.1)
 
     if reading > 0 then @angle += CONFIG.ANT_TURN_SPEED
     if reading < 0 then @angle -= CONFIG.ANT_TURN_SPEED
@@ -240,8 +242,8 @@ class LayerCompositor
       g += 1.0*layers.food.buffer[i]
       r += 0.3*layers.food.buffer[i]
       
-      b += 1.5*layers.foodtrail.buffer[i]
-      g += 1.0*layers.foodtrail.buffer[i]
+      b += 2.5*layers.foodtrail.buffer[i]
+      g += 1.7*layers.foodtrail.buffer[i]
 
       d[j+0] = 255*r
       d[j+1] = 255*g
