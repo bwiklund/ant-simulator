@@ -56,7 +56,7 @@ class AntSim
 class Ant
   constructor: (@sim, @pos = new Vec)->
     @angle = Math.random() * Math.PI * 2
-    @speed = Math.random() * 0.2 + 2.5
+    @speed = (Math.random() * 0.2 + 0.8) * @sim.layerScale * 0.4
     @stomach = 0
     @homeRecency = 0
     @age = 0
@@ -79,9 +79,7 @@ class Ant
   update: ->
     # rules:
     # 
-    # if empty stomach or away from home too long, follow the home trail
-    # else, try to sniff out food directly
-    # if no food to sniff, follow the food scent trail
+    
     # 
     # eat whatever food you can fit in stomach
     # if stomach becomes full, do 360
@@ -91,17 +89,27 @@ class Ant
     @homeRecency *= 0.99
     # @angle += (Math.random() - 0.5)*0.3
     
-    #if @sim.layers.hometrail.sample(@pos) > 1
     if @isInNest()
       @stomach = 0
       @homeRecency = 1
 
-    @stomach += @sim.layers.food.take @pos, 1
+    # gobble up whatever food is underneath
+    newStomach = @stomach + @sim.layers.food.take @pos, 1
 
-    reading = @sniff if @isHunting()
-      @sim.layers.foodtrail
+    # turn around if you just ate a bunch of food
+    # if newStomach > @stomach * 2
+    #   @angle += Math.PI
+    @stomach = newStomach
+
+    # if empty stomach or away from home too long, follow the home trail
+    # else, try to sniff out food directly
+    # if no food to sniff, follow the food scent trail
+    if @isHunting()
+      reading = @sniff @sim.layers.food
+      if reading == 0
+        reading = @sniff @sim.layers.foodtrail
     else
-      @sim.layers.hometrail
+      reading = @sniff @sim.layers.hometrail
 
     @sim.layers.foodtrail.mark(@pos,@stomach * 0.01)
     @sim.layers.hometrail.mark(@pos,@homeRecency*0.1)
@@ -193,7 +201,7 @@ class HomeTrail extends Layer
   #   y/@h
 
   update: ->
-    @mul 0.995
+    @mul 0.99
     #@blur 0.001
     @buffer[@w/2 + @h/2 * @w] = 1000
 
@@ -208,6 +216,7 @@ class Food extends Layer
   initCell: (x,y) ->
     if Math.random() < 0.0002 then 100 else 0
   update: ->
+    @blur 0.0002
     if Math.random() < 0.01
       @mark new Vec( Math.random() * @w*@scale, Math.random() * @h*@scale), 100
 
