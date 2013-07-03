@@ -32,11 +32,10 @@ class AntSim
   createAnts: ->
     @ants = []
     for i in [0...CONFIG.NUM_ANTS]
-      @ants.push new Ant @, new Vec @w/2,@h#new Vec(Math.random()*@w,Math.random()*@h)
+      @ants.push new Ant @, new Vec @w/2,@h
+      #new Vec(Math.random()*@w,Math.random()*@h)
 
   drawLayers: ->
-    # @a.putImageData @layers.hometrail.getImageData(), 0, 0
-    # @a.putImageData @layers.foodtrail.getImageData(), 0, 0
     #scale all the layers. kinda dumb but quick
     @a.putImageData @compositor.getImageData(@layers), 0, 0
     @a.drawImage @c, 0, 0, @layerScale*@w, @layerScale*@h
@@ -57,7 +56,7 @@ class AntSim
     
     CONFIG.SHOW_ANTS && ant.draw @a for ant in @ants
 
-    _raf = window.requestAnimationFrame || window.mozRequestAnimationFrame
+    _raf = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.msRequestAnimationFrame || window.oRequestAnimationFrame
     _raf (=> @update())
 
 
