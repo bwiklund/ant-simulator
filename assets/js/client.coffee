@@ -125,7 +125,12 @@ class Ant
 
     # apply changes
     @pos.add Vec.fromAngleDist @angle, @speed
-    @pos.bound 0,0,0,@sim.w,@sim.h,0
+
+    # simulation boundaries
+    boundPos = @pos.get().bound 0,0,0,@sim.w,@sim.h,0
+    if !boundPos.eq @pos
+      @angle = Math.random() * Math.PI * 2
+      @pos = boundPos
 
   isInNest: ->
     new Vec(@sim.w/2,@sim.h/2).sub(@pos).mag() < 10
@@ -268,6 +273,7 @@ class Vec
     @y = Math.min y2, Math.max(y1, @y)
     @z = Math.min z2, Math.max(z1, @z)
     @
+  eq: (o) -> o.x==@x && o.y==@y && o.z==@z
 
 Vec.fromAngleDist = (angle,dist) ->
   new Vec dist*Math.cos(angle), dist*Math.sin(angle)
