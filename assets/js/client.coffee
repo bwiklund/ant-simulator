@@ -53,7 +53,7 @@ class AntSim
   draw: ->
     @a.clearRect(0,0,@w,@h)
     @drawLayers()
-    ant.draw @a for ant in @ants
+    #ant.draw @a for ant in @ants
 
     _raf = window.requestAnimationFrame || window.mozRequestAnimationFrame
     _raf (=> @update())
@@ -231,9 +231,21 @@ class LayerCompositor
     d = @imageData.data
     for i in [0...@w*@h]
       j = i*4
-      d[j+0] = 127 * layers.hometrail.buffer[i]
-      d[j+1] = 255 * layers.foodtrail.buffer[i]
-      d[j+2] = 255 * layers.food.buffer[i]
+
+      r = g = b = 0
+      
+      r += 0.5 * layers.hometrail.buffer[i]
+      g += 0.1 * layers.hometrail.buffer[i]
+
+      g += 1.0*layers.food.buffer[i]
+      r += 0.3*layers.food.buffer[i]
+      
+      b += 1.5*layers.foodtrail.buffer[i]
+      g += 1.0*layers.foodtrail.buffer[i]
+
+      d[j+0] = 255*r
+      d[j+1] = 255*g
+      d[j+2] = 255*b
       d[j+3] = 255
     @imageData
       
