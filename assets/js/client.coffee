@@ -4,6 +4,9 @@ CONFIG =
   STEPS_PER_FRAME: 5
   ANT_TURN_SPEED: 0.7
   SHOW_ANTS: true
+  JITTER_MAGNITUDE: 0.5
+  NEST_FALLOFF_RATE: 0.01
+  DIGESTION_RATE: 0.01
 
 class AntSim
   constructor: ->
@@ -41,9 +44,6 @@ class AntSim
     @a.drawImage @c, 0, 0, @layerScale*@w, @layerScale*@h
 
   update: ->
-
-    #@layers.foo.blur 0.001
-    
     for i in [0...CONFIG.STEPS_PER_FRAME]
       layer.update() for k,layer of @layers
       ant.update() for ant in @ants
@@ -86,8 +86,8 @@ class Ant
   update: ->
     
     @age++
-    @stomach *= 0.99
-    @homeRecency *= 0.99
+    @stomach *= 1 - CONFIG.DIGESTION_RATE
+    @homeRecency *= 1 - CONFIG.NEST_FALLOFF_RATE
     
     if @isInNest()
       @stomach = 0
@@ -111,22 +111,24 @@ class Ant
     else
       reading = @sniff @sim.layers.hometrail
 
+    # mark trails
     @sim.layers.foodtrail.mark(@pos,@stomach * 0.01)
     @sim.layers.hometrail.mark(@pos,@homeRecency * 0.1)
 
+    # turn
     if reading > 0 then @angle += CONFIG.ANT_TURN_SPEED
     if reading < 0 then @angle -= CONFIG.ANT_TURN_SPEED
 
     # don't jitter the angle if you're on the trail.
     jitterAmount = Math.max(0,1-@sim.layers.foodtrail.sample( @pos ))
-    @angle += (Math.random() - 0.5)*jitterAmount
+    @angle += (Math.random() - 0.5)*2*jitterAmount*CONFIG.JITTER_MAGNITUDE
 
     # apply changes
     @pos.add Vec.fromAngleDist @angle, @speed
     @pos.bound 0,0,0,@sim.w,@sim.h,0
 
   isInNest: ->
-    @pos.y > @sim.h * 0.95
+    new Vec(@sim.w/2,@sim.h/2).sub(@pos).mag() < 10
 
   isHunting: ->
     @stomach < 0.1 && @homeRecency > 0.01
