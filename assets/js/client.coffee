@@ -248,14 +248,24 @@ class LayerCompositor
     for i in [0...@w*@h]
       j = i*4
 
-      r = g = b = 0
+      #r = g = b = 0
+
+      # base color
+      r = 0.13
+      g = 0.11
+      b = 0.10
+      
+      # blend our trails together
       
       r += 0.5 * layers.nesttrail.buffer[i]
       g += 0.1 * layers.nesttrail.buffer[i]
-
-      g += 1.0*layers.food.buffer[i]
-      r += 0.3*layers.food.buffer[i]
+      # b
       
+      r += 0.65*layers.food.buffer[i]
+      g += 1.0*layers.food.buffer[i]
+      # b
+      
+      # r
       b += 2.5*layers.foodtrail.buffer[i]
       g += 1.7*layers.foodtrail.buffer[i]
 

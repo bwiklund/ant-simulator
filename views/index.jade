@@ -15,51 +15,59 @@ html
 
   body(ng-app="demoHarness",ng-controller="MainCtrl")
 
-    .controls
+    .demo
 
-      label
-        |Show ants  
-        input(type="checkbox",ng-model="sim.CONFIG.SHOW_ANTS")
+      .about
+        h1 ant simulator
+        p simulates ant food gathering using scent trails
 
-      label
-        |Number of ants
-        input(type="range",step="1",min="1",max="5000",ng-model="sim.CONFIG.NUM_ANTS")
+      .controls
 
-      label
-        |Simulation speed
-        input(type="range",step="0.1",min="1",max="20",ng-model="sim.CONFIG.STEPS_PER_FRAME")
+        label
+          |Show ants  
+          input(type="checkbox",ng-model="sim.CONFIG.SHOW_ANTS")
 
-      label
-        |Jitter amount
-        input(type="range",step="0.1",min="0",max="5",ng-model="sim.CONFIG.JITTER_MAGNITUDE")
+        label
+          |Number of ants
+          input(type="range",step="1",min="1",max="5000",ng-model="sim.CONFIG.NUM_ANTS")
 
-      label
-        |Ant steering speed
-        input(type="range",step="0.1",min="0",max="2",ng-model="sim.CONFIG.ANT_TURN_SPEED")
+        label
+          |Simulation speed
+          input(type="range",step="0.1",min="1",max="20",ng-model="sim.CONFIG.STEPS_PER_FRAME")
 
-      label
-        |Nest trail falloff rate
-        input(type="range",step="0.001",min="0",max="0.05",ng-model="sim.CONFIG.NEST_TRAIL_FALLOFF_RATE")
+        label
+          |Jitter amount
+          input(type="range",step="0.1",min="0",max="5",ng-model="sim.CONFIG.JITTER_MAGNITUDE")
 
-      label
-        |Nest trail fade rate
-        input(type="range",step="0.001",min="0",max="0.05",ng-model="sim.CONFIG.NEST_TRAIL_FADE_RATE")
+        label
+          |Ant steering speed
+          input(type="range",step="0.1",min="0",max="2",ng-model="sim.CONFIG.ANT_TURN_SPEED")
 
-      label
-        |Food trail falloff rate
-        input(type="range",step="0.001",min="0",max="0.05",ng-model="sim.CONFIG.FOOD_TRAIL_FALLOFF_RATE")
+        label
+          |Nest trail falloff rate
+          input(type="range",step="0.001",min="0",max="0.05",ng-model="sim.CONFIG.NEST_TRAIL_FALLOFF_RATE")
 
-      label
-        |Food trail fade rate
-        input(type="range",step="0.001",min="0",max="0.05",ng-model="sim.CONFIG.FOOD_TRAIL_FADE_RATE")
+        label
+          |Nest trail fade rate
+          input(type="range",step="0.001",min="0",max="0.05",ng-model="sim.CONFIG.NEST_TRAIL_FADE_RATE")
 
-    canvas
+        label
+          |Food trail falloff rate
+          input(type="range",step="0.001",min="0",max="0.05",ng-model="sim.CONFIG.FOOD_TRAIL_FALLOFF_RATE")
 
-  //- SCALE: 4
-  //- NUM_ANTS: 1000
-  //- STEPS_PER_FRAME: 5
-  //- ANT_TURN_SPEED: 0.7
-  //- SHOW_ANTS: true
-  //- JITTER_MAGNITUDE: 0.5
-  //- NEST_FALLOFF_RATE: 0.01
-  //- DIGESTION_RATE: 0.01
+        label
+          |Food trail fade rate
+          input(type="range",step="0.001",min="0",max="0.05",ng-model="sim.CONFIG.FOOD_TRAIL_FADE_RATE")
+
+        .legend
+          h2 Legend:
+          .food Green: Food
+          .nest Red: Nest trail
+          .foodtrail Blue: Food trail
+
+      canvas
+
+      .about
+        p 
+          |on   
+          a(href="http://github.com/bwiklund/ant-simulator") github

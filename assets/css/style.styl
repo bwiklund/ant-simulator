@@ -1,31 +1,77 @@
+$sidebarBg = #211c1a
+
 *
   margin 0
   padding 0
+  -moz-box-sizing border-box
   box-sizing border-box
 
 body
-  background #222
-  color #999
+  background #000
+  color #aaa
   font-family Helvetica
   font-size 10px
 
-.controls
-  vertical-align top
-  display inline-block
-  background #333
-  height 512px
-  padding 10px
-  label
-    padding 5px 10px
-    display block
+.demo
+  
+  margin 0 auto
+  width 712px
 
-  input[type=range]
-    display block
-    -webkit-appearance none !important
-    background #444
-    border none
-    color #666
+  h1,h2,h3,h4,h5,h6
+    font-weight normal
 
-canvas
-  width 512px
-  height 512px
+  a
+    color inherit
+
+  .about
+    text-align center
+    margin 20px
+
+    > *
+      margin 10px 0
+
+    h1
+      font-size 24px
+    p
+      font-size 18px
+      color #444
+
+  .controls
+    vertical-align top
+    display inline-block
+    background $sidebarBg
+    height 512px
+    width 200px
+    padding 10px
+    color lighten($sidebarBg,20)
+    border-right 3px solid black
+
+    label
+      padding 5px 10px
+      display block
+
+    input[type=range]
+      display block
+      -webkit-appearance none !important
+      background lighten($sidebarBg,6)
+      border none
+      color #666
+
+    .legend
+      padding 10px
+
+      > div
+        margin 5px 0
+
+      // .food
+      //   color #29a200
+
+      // .nest
+      //   color #c33
+
+      // .foodtrail
+      //   color #1385e0
+
+  canvas
+    width 512px
+    height 512px
