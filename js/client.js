@@ -1,21 +1,29 @@
 (function() {
-  var Ant, AntSim, CONFIG, Food, FoodTrail, HomeTrail, Layer, LayerCompositor, Vec, _ref, _ref1, _ref2,
+  var Ant, AntSim, DEFAULT_CONFIG, Food, FoodTrail, Layer, LayerCompositor, NestTrail, Vec, _ref, _ref1, _ref2,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  CONFIG = {
+  DEFAULT_CONFIG = {
     SCALE: 4,
     NUM_ANTS: 1000,
     STEPS_PER_FRAME: 5,
-    ANT_TURN_SPEED: 0.7
+    ANT_TURN_SPEED: 0.7,
+    SHOW_ANTS: 1,
+    JITTER_MAGNITUDE: 0.5,
+    NEST_FALLOFF_RATE: 0.01,
+    FOOD_TRAIL_FALLOFF_RATE: 0.01,
+    NEST_TRAIL_FADE_RATE: 0.01,
+    FOOD_TRAIL_FADE_RATE: 0.005
   };
 
   AntSim = (function() {
     function AntSim() {
-      this.layerScale = CONFIG.SCALE;
+      this.CONFIG = DEFAULT_CONFIG;
+      this.frame = 0;
+      this.layerScale = this.CONFIG.SCALE;
       this.createCanvas();
       this.createLayers();
-      this.createAnts();
+      this.ants = [];
       this.update();
     }
 
@@ -30,20 +38,19 @@
 
     AntSim.prototype.createLayers = function() {
       this.layers = {};
-      this.layers.hometrail = new HomeTrail(this.w, this.h, this.layerScale);
-      this.layers.foodtrail = new FoodTrail(this.w, this.h, this.layerScale);
-      this.layers.food = new Food(this.w, this.h, this.layerScale);
-      return this.compositor = new LayerCompositor(this.w, this.h, this.layerScale);
+      this.layers.nesttrail = new NestTrail(this);
+      this.layers.foodtrail = new FoodTrail(this);
+      this.layers.food = new Food(this);
+      return this.compositor = new LayerCompositor(this);
     };
 
-    AntSim.prototype.createAnts = function() {
-      var i, _i, _ref, _results;
-      this.ants = [];
-      _results = [];
-      for (i = _i = 0, _ref = CONFIG.NUM_ANTS; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
-        _results.push(this.ants.push(new Ant(this, new Vec(Math.random() * this.w, Math.random() * this.h))));
+    AntSim.prototype.createAndRemoveAnts = function() {
+      while (this.ants.length < this.CONFIG.NUM_ANTS) {
+        this.ants.push(new Ant(this, new Vec(this.w / 2, this.h)));
       }
-      return _results;
+      if (this.ants.length > this.CONFIG.NUM_ANTS) {
+        return this.ants = this.ants.slice(0, this.CONFIG.NUM_ANTS);
+      }
     };
 
     AntSim.prototype.drawLayers = function() {
@@ -53,7 +60,8 @@
 
     AntSim.prototype.update = function() {
       var ant, i, k, layer, _i, _j, _len, _ref, _ref1, _ref2;
-      for (i = _i = 0, _ref = CONFIG.STEPS_PER_FRAME; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
+      this.createAndRemoveAnts();
+      for (i = _i = 0, _ref = this.CONFIG.STEPS_PER_FRAME; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
         _ref1 = this.layers;
         for (k in _ref1) {
           layer = _ref1[k];
@@ -65,15 +73,21 @@
           ant.update();
         }
       }
-      return this.draw();
+      this.draw();
+      return this.frame++;
     };
 
     AntSim.prototype.draw = function() {
-      var _raf,
+      var ant, _i, _len, _raf, _ref,
         _this = this;
       this.a.clearRect(0, 0, this.w, this.h);
       this.drawLayers();
-      _raf = window.requestAnimationFrame || window.mozRequestAnimationFrame;
+      _ref = this.ants;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        ant = _ref[_i];
+        parseInt(this.CONFIG.SHOW_ANTS) && ant.draw(this.a);
+      }
+      _raf = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.msRequestAnimationFrame || window.oRequestAnimationFrame;
       return _raf((function() {
         return _this.update();
       }));
@@ -112,10 +126,10 @@
     };
 
     Ant.prototype.update = function() {
-      var jitterAmount, newStomach, reading;
+      var boundPos, jitterAmount, newStomach, reading;
       this.age++;
-      this.stomach *= 0.99;
-      this.homeRecency *= 0.99;
+      this.stomach *= 1 - this.sim.CONFIG.FOOD_TRAIL_FALLOFF_RATE;
+      this.homeRecency *= 1 - this.sim.CONFIG.NEST_FALLOFF_RATE;
       if (this.isInNest()) {
         this.stomach = 0;
         this.homeRecency = 1;
@@ -128,24 +142,28 @@
           reading = this.sniff(this.sim.layers.foodtrail);
         }
       } else {
-        reading = this.sniff(this.sim.layers.hometrail);
+        reading = this.sniff(this.sim.layers.nesttrail);
       }
       this.sim.layers.foodtrail.mark(this.pos, this.stomach * 0.01);
-      this.sim.layers.hometrail.mark(this.pos, this.homeRecency * 0.1);
+      this.sim.layers.nesttrail.mark(this.pos, this.homeRecency * 0.1);
       if (reading > 0) {
-        this.angle += CONFIG.ANT_TURN_SPEED;
+        this.angle += this.sim.CONFIG.ANT_TURN_SPEED;
       }
       if (reading < 0) {
-        this.angle -= CONFIG.ANT_TURN_SPEED;
+        this.angle -= this.sim.CONFIG.ANT_TURN_SPEED;
       }
       jitterAmount = Math.max(0, 1 - this.sim.layers.foodtrail.sample(this.pos));
-      this.angle += (Math.random() - 0.5) * jitterAmount;
+      this.angle += (Math.random() - 0.5) * 2 * jitterAmount * this.sim.CONFIG.JITTER_MAGNITUDE;
       this.pos.add(Vec.fromAngleDist(this.angle, this.speed));
-      return this.pos.bound(0, 0, 0, this.sim.w, this.sim.h, 0);
+      boundPos = this.pos.get().bound(0, 0, 0, this.sim.w, this.sim.h, 0);
+      if (!boundPos.eq(this.pos)) {
+        this.angle = Math.random() * Math.PI * 2;
+        return this.pos = boundPos;
+      }
     };
 
     Ant.prototype.isInNest = function() {
-      return this.pos.y > this.sim.h * 0.95;
+      return new Vec(this.sim.w / 2, this.sim.h).sub(this.pos).mag() < 10;
     };
 
     Ant.prototype.isHunting = function() {
@@ -167,11 +185,11 @@
   })();
 
   Layer = (function() {
-    function Layer(_w, _h, scale) {
+    function Layer(sim) {
       var i, _i, _ref;
-      this.scale = scale;
-      this.w = ~~(_w / this.scale);
-      this.h = ~~(_h / this.scale);
+      this.sim = sim;
+      this.w = ~~(this.sim.w / this.sim.layerScale);
+      this.h = ~~(this.sim.h / this.sim.layerScale);
       this.buffer = [];
       for (i = _i = 0, _ref = this.w * this.h; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
         this.buffer.push(this.initCell(i % this.w, Math.floor(i / this.h)));
@@ -253,7 +271,7 @@
     };
 
     Layer.prototype.posToIndex = function(pos) {
-      pos = pos.get().mul(1 / this.scale);
+      pos = pos.get().mul(1 / this.sim.layerScale);
       return Math.floor(pos.x) + Math.floor(pos.y) * this.w;
     };
 
@@ -261,20 +279,20 @@
 
   })();
 
-  HomeTrail = (function(_super) {
-    __extends(HomeTrail, _super);
+  NestTrail = (function(_super) {
+    __extends(NestTrail, _super);
 
-    function HomeTrail() {
-      _ref = HomeTrail.__super__.constructor.apply(this, arguments);
+    function NestTrail() {
+      _ref = NestTrail.__super__.constructor.apply(this, arguments);
       return _ref;
     }
 
-    HomeTrail.prototype.update = function() {
-      this.mul(0.99);
+    NestTrail.prototype.update = function() {
+      this.mul(1 - this.sim.CONFIG.NEST_TRAIL_FADE_RATE);
       return this.buffer[this.w / 2 + this.h / 2 * this.w] = 1000;
     };
 
-    return HomeTrail;
+    return NestTrail;
 
   })(Layer);
 
@@ -287,7 +305,7 @@
     }
 
     FoodTrail.prototype.update = function() {
-      return this.mul(0.995);
+      return this.mul(1 - this.sim.CONFIG.FOOD_TRAIL_FADE_RATE);
     };
 
     return FoodTrail;
@@ -311,9 +329,11 @@
     };
 
     Food.prototype.update = function() {
-      this.blur(0.0002);
+      if (this.sim.frame % 10 === 0) {
+        this.blur(0.002);
+      }
       if (Math.random() < 0.01) {
-        return this.mark(new Vec(Math.random() * this.w * this.scale, Math.random() * this.h * this.scale), 100);
+        return this.mark(new Vec(Math.random() * this.w * this.sim.layerScale, Math.random() * this.h * this.sim.layerScale), 100);
       }
     };
 
@@ -322,10 +342,10 @@
   })(Layer);
 
   LayerCompositor = (function() {
-    function LayerCompositor(_w, _h, scale) {
-      this.scale = scale;
-      this.w = ~~(_w / this.scale);
-      this.h = ~~(_h / this.scale);
+    function LayerCompositor(sim) {
+      this.sim = sim;
+      this.w = ~~(this.sim.w / this.sim.layerScale);
+      this.h = ~~(this.sim.h / this.sim.layerScale);
       this.imageData = document.createElement('CANVAS').getContext('2d').createImageData(this.w, this.h);
     }
 
@@ -334,13 +354,15 @@
       d = this.imageData.data;
       for (i = _i = 0, _ref3 = this.w * this.h; 0 <= _ref3 ? _i < _ref3 : _i > _ref3; i = 0 <= _ref3 ? ++_i : --_i) {
         j = i * 4;
-        r = g = b = 0;
-        r += 0.5 * layers.hometrail.buffer[i];
-        g += 0.1 * layers.hometrail.buffer[i];
+        r = 0.13;
+        g = 0.11;
+        b = 0.10;
+        r += 0.5 * layers.nesttrail.buffer[i];
+        g += 0.1 * layers.nesttrail.buffer[i];
+        r += 0.65 * layers.food.buffer[i];
         g += 1.0 * layers.food.buffer[i];
-        r += 0.3 * layers.food.buffer[i];
-        b += 1.5 * layers.foodtrail.buffer[i];
-        g += 1.0 * layers.foodtrail.buffer[i];
+        b += 2.5 * layers.foodtrail.buffer[i];
+        g += 1.7 * layers.foodtrail.buffer[i];
         d[j + 0] = 255 * r;
         d[j + 1] = 255 * g;
         d[j + 2] = 255 * b;
@@ -419,6 +441,10 @@
       return this;
     };
 
+    Vec.prototype.eq = function(o) {
+      return o.x === this.x && o.y === this.y && o.z === this.z;
+    };
+
     return Vec;
 
   })();
@@ -427,8 +453,6 @@
     return new Vec(dist * Math.cos(angle), dist * Math.sin(angle));
   };
 
-  window.addEventListener('load', function() {
-    return new AntSim;
-  });
+  this.AntSim = AntSim;
 
 }).call(this);
