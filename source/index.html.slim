@@ -3,14 +3,14 @@ html
     title ant simulator
 
     script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js"
-    != css 'style'
-    != js 'client'
+    == stylesheet_link_tag 'style'
+    == javascript_include_tag 'client'
 
-    script
-      var app = angular.module "demoHarness" [];
-      app.controller 'MainCtrl',function $scope{
-        $scope.sim = new antsimulator.AntSim ;
-      };
+    javascript:
+      var app = angular.module("demoHarness",[]);
+      app.controller('MainCtrl',function($scope){
+        $scope.sim = new antsimulator.AntSim();
+      });
 
 
   body ng-app="demoHarness" ng-controller="MainCtrl"
