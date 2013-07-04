@@ -12,6 +12,7 @@ DEFAULT_CONFIG =
 class AntSim
   constructor: ->
     @CONFIG = DEFAULT_CONFIG # to expose it to our test ui. janky
+    @frame = 0
     @layerScale = @CONFIG.SCALE
     @createCanvas()
     @createLayers()
@@ -54,6 +55,8 @@ class AntSim
       ant.update() for ant in @ants
 
     @draw()
+
+    @frame++
 
   draw: ->
     @a.clearRect(0,0,@w,@h)
@@ -225,7 +228,9 @@ class Food extends Layer
   initCell: (x,y) ->
     if Math.random() < 0.0002 then 100 else 0
   update: ->
-    @blur 0.0002
+    # blurring is expensive, we don't have to do it every frame
+    if @sim.frame % 10 == 0
+      @blur 0.002
     if Math.random() < 0.01
       @mark new Vec( Math.random() * @w*@sim.layerScale, Math.random() * @h*@sim.layerScale), 100
 
