@@ -1,3 +1,5 @@
+ns = {}
+
 DEFAULT_CONFIG =
   SCALE: 4
   NUM_ANTS: 1000
@@ -10,7 +12,7 @@ DEFAULT_CONFIG =
   NEST_TRAIL_FADE_RATE: 0.01
   FOOD_TRAIL_FADE_RATE: 0.005
 
-class AntSim
+class ns.AntSim
   constructor: ->
     @CONFIG = DEFAULT_CONFIG # to expose it to our test ui. janky
     @frame = 0
@@ -30,17 +32,17 @@ class AntSim
 
   createLayers: ->
     @layers = {}
-    @layers.nesttrail = new NestTrail @
-    @layers.foodtrail = new FoodTrail @
-    @layers.food = new Food @
+    @layers.nesttrail = new ns.NestTrail @
+    @layers.foodtrail = new ns.FoodTrail @
+    @layers.food = new ns.Food @
 
-    @compositor = new LayerCompositor @
+    @compositor = new ns.LayerCompositor @
 
   # quick and dirty way to change the population of ants
   createAndRemoveAnts: ->
     while @ants.length < @CONFIG.NUM_ANTS
-      @ants.push new Ant @, new Vec @w/2,@h
-      #new Vec(Math.random()*@w,Math.random()*@h)
+      @ants.push new ns.Ant @, new ns.Vec @w/2,@h
+      #new ns.Vec(Math.random()*@w,Math.random()*@h)
     if @ants.length > @CONFIG.NUM_ANTS
       @ants = @ants.slice 0, @CONFIG.NUM_ANTS
 
@@ -69,8 +71,8 @@ class AntSim
     _raf (=> @update())
 
 
-class Ant
-  constructor: (@sim, @pos = new Vec)->
+class ns.Ant
+  constructor: (@sim, @pos = new ns.Vec)->
     @angle = Math.random() * Math.PI * 2
     @speed = (Math.random() * 0.2 + 0.8) * @sim.layerScale * 0.4
     @stomach = 0
@@ -81,8 +83,8 @@ class Ant
     antennaDist = 3 * @sim.layerScale
     antennaAngle = Math.PI / 4
 
-    antennaLeftPos  = @pos.get().add( Vec.fromAngleDist(@angle+antennaAngle,antennaDist) )
-    antennaRightPos = @pos.get().add( Vec.fromAngleDist(@angle-antennaAngle,antennaDist) )
+    antennaLeftPos  = @pos.get().add( ns.Vec.fromAngleDist(@angle+antennaAngle,antennaDist) )
+    antennaRightPos = @pos.get().add( ns.Vec.fromAngleDist(@angle-antennaAngle,antennaDist) )
 
     leftSample  = layer.sample antennaLeftPos
     rightSample = layer.sample antennaRightPos
@@ -133,7 +135,7 @@ class Ant
     @angle += (Math.random() - 0.5)*2*jitterAmount*@sim.CONFIG.JITTER_MAGNITUDE
 
     # apply changes
-    @pos.add Vec.fromAngleDist @angle, @speed
+    @pos.add ns.Vec.fromAngleDist @angle, @speed
 
     # simulation boundaries
     boundPos = @pos.get().bound 0,0,0,@sim.w,@sim.h,0
@@ -142,7 +144,7 @@ class Ant
       @pos = boundPos
 
   isInNest: ->
-    new Vec(@sim.w/2,@sim.h).sub(@pos).mag() < 10
+    new ns.Vec(@sim.w/2,@sim.h).sub(@pos).mag() < 10
 
   isHunting: ->
     @stomach < 0.1 && @homeRecency > 0.01
@@ -157,7 +159,7 @@ class Ant
     a.restore()
 
 
-class Layer
+class ns.Layer
   constructor: (@sim) ->
     @w = ~~(@sim.w / @sim.layerScale)
     @h = ~~(@sim.h / @sim.layerScale)
@@ -212,20 +214,20 @@ class Layer
     Math.floor(pos.x) + Math.floor(pos.y) * @w
 
 
-class NestTrail extends Layer
+class ns.NestTrail extends ns.Layer
   update: ->
     @mul 1-@sim.CONFIG.NEST_TRAIL_FADE_RATE
     #@blur 0.001
     @buffer[@w/2 + @h/2 * @w] = 1000
 
 
-class FoodTrail extends Layer
+class ns.FoodTrail extends ns.Layer
   update: ->
     @mul 1-@sim.CONFIG.FOOD_TRAIL_FADE_RATE
     #@blur 0.001
 
 
-class Food extends Layer
+class ns.Food extends ns.Layer
   initCell: (x,y) ->
     if Math.random() < 0.0002 then 100 else 0
   update: ->
@@ -233,14 +235,14 @@ class Food extends Layer
     if @sim.frame % 10 == 0
       @blur 0.002
     if Math.random() < 0.01
-      @mark new Vec( Math.random() * @w*@sim.layerScale, Math.random() * @h*@sim.layerScale), 100
+      @mark new ns.Vec( Math.random() * @w*@sim.layerScale, Math.random() * @h*@sim.layerScale), 100
 
 
-class LayerCompositor
+class ns.LayerCompositor
   constructor: (@sim) ->
     @w = ~~ (@sim.w / @sim.layerScale)
     @h = ~~ (@sim.h / @sim.layerScale)
-    # seems to be the only way to make a new imagedata object?
+    # seems to be the only way to make a new ns.imagedata object?
     @imageData = document.createElement('CANVAS').getContext('2d').createImageData(@w,@h)
     
   getImageData: (layers) ->
@@ -276,10 +278,10 @@ class LayerCompositor
     @imageData
       
 
-class Vec
+class ns.Vec
   constructor: (@x=0,@y=0,@z=0) ->
   set: (@x=0,@y=0,@z=0) -> @
-  get: -> new Vec @x, @y, @z
+  get: -> new ns.Vec @x, @y, @z
   add: (o) -> @x+=o.x; @y+=o.y; @z+=o.z; @
   sub: (o) -> @x-=o.x; @y-=o.y; @z-=o.z; @
   mul: (n) -> @x*=n; @y*=n; @z*=n; @
@@ -293,9 +295,9 @@ class Vec
     @
   eq: (o) -> o.x==@x && o.y==@y && o.z==@z
 
-Vec.fromAngleDist = (angle,dist) ->
-  new Vec dist*Math.cos(angle), dist*Math.sin(angle)
+ns.Vec.fromAngleDist = (angle,dist) ->
+  new ns.Vec dist*Math.cos(angle), dist*Math.sin(angle)
 
 
 
-@AntSim = AntSim
+@antsim = ns
