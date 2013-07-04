@@ -28,11 +28,11 @@ class AntSim
 
   createLayers: ->
     @layers = {}
-    @layers.nesttrail = new NestTrail @, @w, @h, @layerScale
-    @layers.foodtrail = new FoodTrail @, @w, @h, @layerScale
-    @layers.food = new Food @, @w, @h, @layerScale
+    @layers.nesttrail = new NestTrail @
+    @layers.foodtrail = new FoodTrail @
+    @layers.food = new Food @
 
-    @compositor = new LayerCompositor @w, @h, @layerScale
+    @compositor = new LayerCompositor @
 
   # quick and dirty way to change the population of ants
   createAndRemoveAnts: ->
@@ -43,7 +43,7 @@ class AntSim
       @ants = @ants.slice 0, @CONFIG.NUM_ANTS
 
   drawLayers: ->
-    #scale all the layers. kinda dumb but quick
+    # cheap (?) canvas resizing
     @a.putImageData @compositor.getImageData(@layers), 0, 0
     @a.drawImage @c, 0, 0, @layerScale*@w, @layerScale*@h
 
@@ -154,9 +154,9 @@ class Ant
 
 
 class Layer
-  constructor: (@sim,_w,_h,@scale) ->
-    @w = ~~(_w / @scale)
-    @h = ~~(_h / @scale)
+  constructor: (@sim) ->
+    @w = ~~(@sim.w / @sim.layerScale)
+    @h = ~~(@sim.h / @sim.layerScale)
 
     @buffer = []
     @buffer.push @initCell(i%@w,Math.floor(i/@h)) for i in [0...@w*@h]
@@ -204,7 +204,7 @@ class Layer
 
 
   posToIndex: (pos) ->
-    pos = pos.get().mul 1/@scale
+    pos = pos.get().mul 1 / @sim.layerScale
     Math.floor(pos.x) + Math.floor(pos.y) * @w
 
 
@@ -227,13 +227,13 @@ class Food extends Layer
   update: ->
     @blur 0.0002
     if Math.random() < 0.01
-      @mark new Vec( Math.random() * @w*@scale, Math.random() * @h*@scale), 100
+      @mark new Vec( Math.random() * @w*@sim.layerScale, Math.random() * @h*@sim.layerScale), 100
 
 
 class LayerCompositor
-  constructor: (_w,_h,@scale) ->
-    @w = ~~ (_w / @scale)
-    @h = ~~ (_h / @scale)
+  constructor: (@sim) ->
+    @w = ~~ (@sim.w / @sim.layerScale)
+    @h = ~~ (@sim.h / @sim.layerScale)
     # seems to be the only way to make a new imagedata object?
     @imageData = document.createElement('CANVAS').getContext('2d').createImageData(@w,@h)
     
