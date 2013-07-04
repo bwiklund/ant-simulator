@@ -3,7 +3,7 @@ DEFAULT_CONFIG =
   NUM_ANTS: 1000
   STEPS_PER_FRAME: 5
   ANT_TURN_SPEED: 0.7
-  SHOW_ANTS: true
+  SHOW_ANTS: 1
   JITTER_MAGNITUDE: 0.5
   NEST_FALLOFF_RATE: 0.01
   FOOD_TRAIL_FALLOFF_RATE: 0.01
@@ -63,7 +63,7 @@ class AntSim
     @a.clearRect(0,0,@w,@h)
     @drawLayers()
     
-    @CONFIG.SHOW_ANTS && ant.draw @a for ant in @ants
+    parseInt( @CONFIG.SHOW_ANTS ) && ant.draw @a for ant in @ants
 
     _raf = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.msRequestAnimationFrame || window.oRequestAnimationFrame
     _raf (=> @update())

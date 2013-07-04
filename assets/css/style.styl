@@ -50,12 +50,28 @@ body
       padding 5px 10px
       display block
 
+    input[type=checkbox]
+      display block
+      -webkit-appearance: none
+      width: 20px
+      height: 20px
+      background: lighten($sidebarBg,6)
+
+      &:checked
+        background: lighten($sidebarBg,20)
+
     input[type=range]
       display block
-      -webkit-appearance none !important
+      -webkit-appearance none
       background lighten($sidebarBg,6)
       border none
-      color #666
+      color lighten($sidebarBg,20)
+
+      &::-webkit-slider-thumb
+        height: 20px
+        width: 10px
+        background: lighten($sidebarBg,20)
+        -webkit-appearance none
 
     .legend
       padding 10px
