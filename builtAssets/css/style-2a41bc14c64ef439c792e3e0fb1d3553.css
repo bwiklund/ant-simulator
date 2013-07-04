@@ -1,0 +1,18 @@
+*{margin:0;padding:0;-moz-box-sizing:border-box;box-sizing:border-box}
+body{background:#000;color:#aaa;font-family:Helvetica;font-size:10px}
+.demo{margin:0 auto;width:712px;}
+.demo h1,.demo h2,.demo h3,.demo h4,.demo h5,.demo h6{font-weight:normal}
+.demo a{color:inherit}
+.demo .about{text-align:center;margin:20px;}
+.demo .about > *{margin:10px 0}
+.demo .about h1{font-size:24px}
+.demo .about p{font-size:18px;color:#4b4b4b}
+.demo .controls{vertical-align:top;display:inline-block;background:#181818;height:512px;width:200px;padding:10px;color:#4b4b4b;border-right:3px solid #000;}
+.demo .controls label{padding:5px 10px;display:block}
+.demo .controls input[type=checkbox]{display:block;-webkit-appearance:none;width:20px;height:20px;background:#272727;}
+.demo .controls input[type=checkbox]:checked{background:#4b4b4b}
+.demo .controls input[type=range]{display:block;-webkit-appearance:none;background:#272727;border:none;color:#4b4b4b;}
+.demo .controls input[type=range]::-webkit-slider-thumb{height:20px;width:10px;background:#4b4b4b;-webkit-appearance:none}
+.demo .controls .legend{padding:10px;}
+.demo .controls .legend > div{margin:5px 0}
+.demo canvas{width:512px;height:512px}

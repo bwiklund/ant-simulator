@@ -56,8 +56,8 @@ class ns.Ant
     @sim.layers.nesttrail.mark(@pos,@homeRecency * 0.1)
 
     # turn
-    if reading > 0 then @angle += @sim.CONFIG.ANT_TURN_SPEED
-    if reading < 0 then @angle -= @sim.CONFIG.ANT_TURN_SPEED
+    if reading > 0 then @angle += parseFloat @sim.CONFIG.ANT_TURN_SPEED
+    if reading < 0 then @angle -= parseFloat @sim.CONFIG.ANT_TURN_SPEED
 
     # don't jitter the angle if you're on the trail.
     jitterAmount = Math.max(0,1-@sim.layers.foodtrail.sample( @pos ))
