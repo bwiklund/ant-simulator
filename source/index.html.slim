@@ -1,0 +1,73 @@
+html
+  head
+    title ant simulator
+
+    script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js"
+    != css 'style'
+    != js 'client'
+
+    script
+      var app = angular.module "demoHarness" [];
+      app.controller 'MainCtrl',function $scope{
+        $scope.sim = new antsimulator.AntSim ;
+      };
+
+
+  body ng-app="demoHarness" ng-controller="MainCtrl"
+
+    .demo
+
+      .about
+        h1 ant simulator
+        p simulates ants foraging for food, using scent trails
+
+      .controls
+
+        label
+          |Show ants  
+          input type="range" min="0" max="1" ng-model="sim.CONFIG.SHOW_ANTS"
+
+        label
+          |Number of ants
+          input type="range" step="1" min="1" max="5000" ng-model="sim.CONFIG.NUM_ANTS"
+
+        label
+          |Simulation speed
+          input type="range" step="0.1" min="1" max="20" ng-model="sim.CONFIG.STEPS_PER_FRAME"
+
+        label
+          |Jitter amount
+          input type="range" step="0.1" min="0" max="5" ng-model="sim.CONFIG.JITTER_MAGNITUDE"
+
+        label
+          |Ant steering speed
+          input type="range" step="0.1" min="0" max="2" ng-model="sim.CONFIG.ANT_TURN_SPEED"
+
+        label
+          |Nest trail falloff rate
+          input type="range" step="0.001" min="0" max="0.05" ng-model="sim.CONFIG.NEST_TRAIL_FALLOFF_RATE"
+
+        label
+          |Nest trail fade rate
+          input type="range" step="0.001" min="0" max="0.05" ng-model="sim.CONFIG.NEST_TRAIL_FADE_RATE"
+
+        label
+          |Food trail falloff rate
+          input type="range" step="0.001" min="0" max="0.05" ng-model="sim.CONFIG.FOOD_TRAIL_FALLOFF_RATE"
+
+        label
+          |Food trail fade rate
+          input type="range" step="0.001" min="0" max="0.05" ng-model="sim.CONFIG.FOOD_TRAIL_FADE_RATE"
+
+        .legend
+          h2 Legend:
+          .food Green: Food
+          .nest Red: Nest trail
+          .foodtrail Blue: Food trail
+
+      canvas
+
+      .about
+        p 
+          |on   
+          a href="http://github.com/bwiklund/ant-simulator" github
