@@ -34,11 +34,19 @@ html
         input(type="range",step="0.1",min="0",max="5",ng-model="sim.CONFIG.JITTER_MAGNITUDE")
 
       label
+        |Ant steering speed
+        input(type="range",step="0.1",min="0",max="5",ng-model="sim.CONFIG.ANT_TURN_SPEED")
+
+      label
         |Nest trail falloff rate
         input(type="range",step="0.001",min="0",max="0.1",ng-model="sim.CONFIG.NEST_FALLOFF_RATE")
 
       label
-        |Digestion rate
+        |Nest trail fade rate
+        input(type="range",step="0.001",min="0",max="0.1",ng-model="sim.CONFIG.NEST_FADE_RATE")
+
+      label
+        |Food trail falloff rate
         input(type="range",step="0.001",min="0",max="0.1",ng-model="sim.CONFIG.DIGESTION_RATE")
 
     canvas

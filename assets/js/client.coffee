@@ -7,6 +7,7 @@ DEFAULT_CONFIG =
   JITTER_MAGNITUDE: 0.5
   NEST_FALLOFF_RATE: 0.01
   DIGESTION_RATE: 0.01
+  NEST_FADE_RATE: 0.01
 
 class AntSim
   constructor: ->
@@ -27,9 +28,9 @@ class AntSim
 
   createLayers: ->
     @layers = {}
-    @layers.hometrail = new HomeTrail @w, @h, @layerScale
-    @layers.foodtrail = new FoodTrail @w, @h, @layerScale
-    @layers.food = new Food @w, @h, @layerScale
+    @layers.hometrail = new HomeTrail @, @w, @h, @layerScale
+    @layers.foodtrail = new FoodTrail @, @w, @h, @layerScale
+    @layers.food = new Food @, @w, @h, @layerScale
 
     @compositor = new LayerCompositor @w, @h, @layerScale
 
@@ -153,7 +154,7 @@ class Ant
 
 
 class Layer
-  constructor: (_w,_h,@scale) ->
+  constructor: (@sim,_w,_h,@scale) ->
     @w = ~~(_w / @scale)
     @h = ~~(_h / @scale)
 
@@ -208,11 +209,8 @@ class Layer
 
 
 class HomeTrail extends Layer
-  # initCell: (x,y) ->
-  #   y/@h
-
   update: ->
-    @mul 0.99
+    @mul 1-@sim.CONFIG.NEST_FADE_RATE
     #@blur 0.001
     @buffer[@w/2 + @h/2 * @w] = 1000
 
