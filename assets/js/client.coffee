@@ -6,8 +6,9 @@ DEFAULT_CONFIG =
   SHOW_ANTS: true
   JITTER_MAGNITUDE: 0.5
   NEST_FALLOFF_RATE: 0.01
-  DIGESTION_RATE: 0.01
-  NEST_FADE_RATE: 0.01
+  FOOD_TRAIL_FALLOFF_RATE: 0.01
+  NEST_TRAIL_FADE_RATE: 0.01
+  FOOD_TRAIL_FADE_RATE: 0.005
 
 class AntSim
   constructor: ->
@@ -94,7 +95,7 @@ class Ant
   update: ->
     
     @age++
-    @stomach *= 1 - @sim.CONFIG.DIGESTION_RATE
+    @stomach *= 1 - @sim.CONFIG.FOOD_TRAIL_FALLOFF_RATE
     @homeRecency *= 1 - @sim.CONFIG.NEST_FALLOFF_RATE
     
     if @isInNest()
@@ -213,14 +214,14 @@ class Layer
 
 class NestTrail extends Layer
   update: ->
-    @mul 1-@sim.CONFIG.NEST_FADE_RATE
+    @mul 1-@sim.CONFIG.NEST_TRAIL_FADE_RATE
     #@blur 0.001
     @buffer[@w/2 + @h/2 * @w] = 1000
 
 
 class FoodTrail extends Layer
   update: ->
-    @mul 0.995
+    @mul 1-@sim.CONFIG.FOOD_TRAIL_FADE_RATE
     #@blur 0.001
 
 
