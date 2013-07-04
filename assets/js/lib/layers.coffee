@@ -48,8 +48,6 @@ class ns.Layer
     else
       0
 
-
-
   posToIndex: (pos) ->
     pos = pos.get().mul 1 / @sim.layerScale
     Math.floor(pos.x) + Math.floor(pos.y) * @w

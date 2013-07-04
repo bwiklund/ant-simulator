@@ -73,7 +73,7 @@ class ns.Ant
       @pos = boundPos
 
   isInNest: ->
-    new ns.Vec(@sim.w/2,@sim.h).sub(@pos).mag() < 10
+    new ns.Vec(@sim.w/2,@sim.h/2).sub(@pos).mag() < 10
 
   isHunting: ->
     @stomach < 0.1 && @homeRecency > 0.01
