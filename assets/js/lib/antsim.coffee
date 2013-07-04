@@ -1,4 +1,4 @@
-ns = @ns
+ns = @antsimulator
 
 DEFAULT_CONFIG =
   SCALE: 4

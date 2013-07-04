@@ -1,4 +1,4 @@
-ns = @ns
+ns = @antsimulator
 
 class ns.Layer
   constructor: (@sim) ->

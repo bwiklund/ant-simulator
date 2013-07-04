@@ -1,4 +1,4 @@
-ns = @ns
+ns = @antsimulator
 
 class ns.Ant
   constructor: (@sim, @pos = new ns.Vec)->

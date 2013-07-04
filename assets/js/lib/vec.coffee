@@ -1,4 +1,4 @@
-ns = @ns
+ns = @antsimulator
 
 class ns.Vec
   constructor: (@x=0,@y=0,@z=0) ->
