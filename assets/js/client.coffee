@@ -14,7 +14,7 @@ class AntSim
     @layerScale = @CONFIG.SCALE
     @createCanvas()
     @createLayers()
-    @createAnts()
+    @ants = []
     @update()
 
   createCanvas: ->
@@ -33,11 +33,13 @@ class AntSim
 
     @compositor = new LayerCompositor @w, @h, @layerScale
 
-  createAnts: ->
-    @ants = []
-    for i in [0...@CONFIG.NUM_ANTS]
+  # quick and dirty way to change the population of ants
+  createAndRemoveAnts: ->
+    while @ants.length < @CONFIG.NUM_ANTS
       @ants.push new Ant @, new Vec @w/2,@h
       #new Vec(Math.random()*@w,Math.random()*@h)
+    if @ants.length > @CONFIG.NUM_ANTS
+      @ants = @ants.slice 0, @CONFIG.NUM_ANTS
 
   drawLayers: ->
     #scale all the layers. kinda dumb but quick
@@ -45,6 +47,7 @@ class AntSim
     @a.drawImage @c, 0, 0, @layerScale*@w, @layerScale*@h
 
   update: ->
+    @createAndRemoveAnts()
     for i in [0...@CONFIG.STEPS_PER_FRAME]
       layer.update() for k,layer of @layers
       ant.update() for ant in @ants

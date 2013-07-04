@@ -1,9 +1,28 @@
 *
   margin: 0
   padding: 0
+  box-sizing: border-box
 
 body
   background: #222
+  color: #999
+  font-family: Helvetica
+  font-size: 12px
+
+.controls
+  vertical-align: top
+  display: inline-block
+  background: #333
+  height: 512px
+  padding: 10px
+  label
+    padding: 5px 10px
+    display: block
+
+  input[type=range]
+    display: block
+    -webkit-appearance: none !important
+    background: #444
 
 canvas
   width: 512px

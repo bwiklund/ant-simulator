@@ -12,11 +12,42 @@ html
         $scope.sim = new AntSim();
       });
 
+
   body(ng-app="demoHarness",ng-controller="MainCtrl")
-    label
-      |Show ants  
-      input(type="checkbox",ng-model="sim.CONFIG.SHOW_ANTS")
-    label
-      |Steps per frame
-      input(type="range",min="1",max="20",ng-model="sim.CONFIG.STEPS_PER_FRAME")
+
+    .controls
+
+      label
+        |Show ants  
+        input(type="checkbox",ng-model="sim.CONFIG.SHOW_ANTS")
+
+      label
+        |Number of ants
+        input(type="range",step="1",min="1",max="5000",ng-model="sim.CONFIG.NUM_ANTS")
+
+      label
+        |Simluation speed
+        input(type="range",step="0.1",min="1",max="20",ng-model="sim.CONFIG.STEPS_PER_FRAME")
+
+      label
+        |Jitter amount
+        input(type="range",step="0.1",min="0",max="5",ng-model="sim.CONFIG.JITTER_MAGNITUDE")
+
+      label
+        |Nest trail falloff rate
+        input(type="range",step="0.001",min="0",max="0.1",ng-model="sim.CONFIG.NEST_FALLOFF_RATE")
+
+      label
+        |Digestion rate
+        input(type="range",step="0.001",min="0",max="0.1",ng-model="sim.CONFIG.DIGESTION_RATE")
+
     canvas
+
+  //- SCALE: 4
+  //- NUM_ANTS: 1000
+  //- STEPS_PER_FRAME: 5
+  //- ANT_TURN_SPEED: 0.7
+  //- SHOW_ANTS: true
+  //- JITTER_MAGNITUDE: 0.5
+  //- NEST_FALLOFF_RATE: 0.01
+  //- DIGESTION_RATE: 0.01
