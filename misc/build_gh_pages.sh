@@ -7,11 +7,12 @@ wget \
   --domains localhost \
   http://localhost:8765/
 
-mv localhost\:8765 build
 git checkout gh-pages
-mv build/* .
+mv localhost\:8765 build
+rsync -a build/* ./
 rm -rf build
-gac "updated gh-pages build"
+git add -A .
+git commit -m "updated gh-pages build"
 git push origin gh-pages
 git checkout master
 echo "Done"
