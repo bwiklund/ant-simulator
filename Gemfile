@@ -4,6 +4,7 @@ source 'http://rubygems.org'
 
 gem "middleman", "~>3.1.3"
 gem "middleman-sprockets"
+gem "middleman-gh-pages"
 gem "slim"
 
 # Live-reloading plugin
