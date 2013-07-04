@@ -28,7 +28,7 @@ class AntSim
 
   createLayers: ->
     @layers = {}
-    @layers.hometrail = new HomeTrail @, @w, @h, @layerScale
+    @layers.nesttrail = new NestTrail @, @w, @h, @layerScale
     @layers.foodtrail = new FoodTrail @, @w, @h, @layerScale
     @layers.food = new Food @, @w, @h, @layerScale
 
@@ -114,11 +114,11 @@ class Ant
       if reading == 0
         reading = @sniff @sim.layers.foodtrail
     else
-      reading = @sniff @sim.layers.hometrail
+      reading = @sniff @sim.layers.nesttrail
 
     # mark trails
     @sim.layers.foodtrail.mark(@pos,@stomach * 0.01)
-    @sim.layers.hometrail.mark(@pos,@homeRecency * 0.1)
+    @sim.layers.nesttrail.mark(@pos,@homeRecency * 0.1)
 
     # turn
     if reading > 0 then @angle += @sim.CONFIG.ANT_TURN_SPEED
@@ -208,7 +208,7 @@ class Layer
     Math.floor(pos.x) + Math.floor(pos.y) * @w
 
 
-class HomeTrail extends Layer
+class NestTrail extends Layer
   update: ->
     @mul 1-@sim.CONFIG.NEST_FADE_RATE
     #@blur 0.001
@@ -244,8 +244,8 @@ class LayerCompositor
 
       r = g = b = 0
       
-      r += 0.5 * layers.hometrail.buffer[i]
-      g += 0.1 * layers.hometrail.buffer[i]
+      r += 0.5 * layers.nesttrail.buffer[i]
+      g += 0.1 * layers.nesttrail.buffer[i]
 
       g += 1.0*layers.food.buffer[i]
       r += 0.3*layers.food.buffer[i]
