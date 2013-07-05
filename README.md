@@ -22,7 +22,7 @@ If the values are tweaked right, both the foraging ants, and the ants returning 
 
 # notes
 
-A few things have to be tweaked right for this to work well:
+This only works well if several variables are tweaked properly:
 
 - The trails have to fade over time. Otherwise, the map gets saturated with pheromones that are no longer relevant, ie: food that has been eaten up.
 - The intensity that the ants lay down trails has to fall off over time. Otherwise, a wandering ant will leave a trail all over the screen, which has the same value as one that happened to walk straight home.
